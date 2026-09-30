@@ -10,6 +10,7 @@ from .config import FRONTEND_URL, GENERATED_DIR
 from .schemas import PromptRequest, GenerateResponse
 from .llm_parser import parse_prompt_with_llm
 from .image_generator import generate_2d_image
+from . import model_3d as _m3d
 from .model_3d import generate_3d_from_image
 
 app = FastAPI(
@@ -66,6 +67,7 @@ def generate_design(req: PromptRequest):
         spec=spec,
         image_2d_url=image_url,
         model_3d_url=model_url,
+        model_3d_error=None if model_url else _m3d.LAST_ERROR,
         processing_time_sec=elapsed,
         message=f"Generated {spec.bhk}BHK, {int(spec.total_area_sqft)} sqft design.",
     )

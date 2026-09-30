@@ -6,16 +6,16 @@ import { Home, Maximize, Compass, Layers as LayersIcon, MapPin } from "lucide-re
 export default function SpecPanel({ spec }: { spec: DesignSpec | undefined }) {
   if (!spec) {
     return (
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-slate-400 text-sm">
+      <div className="bg-white border border-line rounded-xl p-6 text-ink/60 text-sm">
         Spec will appear here after generation.
       </div>
     );
   }
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
-      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-        <LayersIcon className="w-5 h-5 text-amber-400" />
+    <div className="bg-white border border-line rounded-xl p-6 space-y-5">
+      <h3 className="text-lg font-semibold text-ink flex items-center gap-2">
+        <LayersIcon className="w-5 h-5 text-gold" />
         Design Spec
       </h3>
 
@@ -40,27 +40,27 @@ export default function SpecPanel({ spec }: { spec: DesignSpec | undefined }) {
       </div>
 
       <div>
-        <h4 className="text-sm font-medium text-slate-300 mb-3">
+        <h4 className="text-sm font-medium text-ink/80 mb-3">
           Rooms ({spec.rooms.length})
         </h4>
         <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
           {spec.rooms.map((r, i) => (
             <div
               key={i}
-              className="flex items-center justify-between bg-slate-900/50 border border-white/5 rounded-lg px-3 py-2 text-sm"
+              className="flex items-center justify-between bg-card border border-line rounded-lg px-3 py-2 text-sm"
             >
-              <span className="text-slate-200 capitalize">
+              <span className="text-ink capitalize">
                 {r.type.replace(/_/g, " ")}
               </span>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="flex items-center gap-2 text-xs text-ink/60">
                 {r.area_sqft && <span>{Math.round(r.area_sqft)} sqft</span>}
                 {r.vastu_zone && (
-                  <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300">
+                  <span className="px-1.5 py-0.5 rounded bg-[#f6e9d6] text-gold">
                     {r.vastu_zone}
                   </span>
                 )}
                 {r.attached_bath && (
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300">
+                  <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">
                     attached
                   </span>
                 )}
@@ -71,8 +71,8 @@ export default function SpecPanel({ spec }: { spec: DesignSpec | undefined }) {
       </div>
 
       {spec.notes && (
-        <div className="text-xs text-slate-400 bg-slate-900/30 rounded-lg p-3 border border-white/5">
-          <span className="text-slate-500">Note: </span>
+        <div className="text-xs text-ink/60 bg-card rounded-lg p-3 border border-line">
+          <span className="text-ink/50">Note: </span>
           {spec.notes}
         </div>
       )}
@@ -92,13 +92,13 @@ function Stat({
   accent?: string;
 }) {
   const colors: Record<string, string> = {
-    slate: "text-slate-200",
-    emerald: "text-emerald-300",
-    rose: "text-rose-300",
+    slate: "text-ink",
+    emerald: "text-emerald-700",
+    rose: "text-red-600",
   };
   return (
-    <div className="bg-slate-900/50 border border-white/5 rounded-lg p-3">
-      <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+    <div className="bg-card border border-line rounded-lg p-3">
+      <div className="flex items-center gap-1.5 text-xs text-ink/60 mb-1">
         {icon}
         {label}
       </div>

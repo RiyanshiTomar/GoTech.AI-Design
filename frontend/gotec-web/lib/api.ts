@@ -24,6 +24,7 @@ export interface GenerateResponse {
   spec?: DesignSpec;
   image_2d_url?: string;
   model_3d_url?: string;
+  model_3d_error?: string;
   processing_time_sec: number;
   message: string;
 }

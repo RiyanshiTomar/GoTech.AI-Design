@@ -1,25 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
-import {
-  Sparkles,
-  Loader2,
-  ArrowLeft,
-  Download,
-  AlertCircle,
-} from "lucide-react";
+import { Loader2, AlertCircle, Download, Sparkles, Square, Box } from "lucide-react";
+import Nav from "@/components/Nav";
 import { generateDesign, mediaUrl, GenerateResponse } from "@/lib/api";
 import SpecPanel from "@/components/SpecPanel";
 
 const Viewer3D = dynamic(() => import("@/components/Viewer3D"), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-slate-900 rounded-2xl">
-      <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
-    </div>
-  ),
+  loading: () => <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 text-gold animate-spin" /></div>,
 });
 
 const EXAMPLES = [
@@ -38,204 +28,91 @@ export default function DesignPage() {
 
   const onGenerate = async () => {
     if (!prompt.trim() || loading) return;
-    setLoading(true);
-    setError(null);
-    setResult(null);
+    setLoading(true); setError(null); setResult(null);
     try {
-      const res = await generateDesign(prompt);
-      setResult(res);
-      setTab("2d");
+      setResult(await generateDesign(prompt)); setTab("2d");
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Unknown error";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+      setError(e instanceof Error ? e.message : "Unknown error");
+    } finally { setLoading(false); }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5">
-        <Link href="/" className="flex items-center gap-2 text-slate-300 hover:text-amber-400 transition">
-          <ArrowLeft className="w-4 h-4" />
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center font-bold text-slate-900 text-sm">
-            G
+    <div className="h-screen flex flex-col overflow-hidden">
+      <Nav wide />
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
+        {/* Left: fixed-width control panel, scrolls inside itself */}
+        <aside className="lg:w-[380px] lg:shrink-0 lg:h-full overflow-y-auto border-b lg:border-b-0 lg:border-r border-line bg-white p-5 space-y-5">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">AI Designer</h1>
+            <p className="mt-1 text-sm text-ink/60">Describe your home to get a 2D plan and a 3D model.</p>
           </div>
-          <span className="font-semibold">GoTec.AI</span>
-        </Link>
-        <div className="text-sm text-slate-400">Design Studio · POC</div>
-      </nav>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid lg:grid-cols-[380px_1fr] gap-6">
-        {/* Left: Input panel */}
-        <div className="space-y-4">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-            <h2 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              Describe your home
-            </h2>
+          <div>
+            <label htmlFor="prompt" className="text-sm font-medium">Requirements</label>
             <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={4}
-              className="w-full bg-slate-950/60 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500/50 resize-none"
-              placeholder="e.g. 3BHK, 1200 sqft, north facing, Vastu..."
+              id="prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={5}
+              placeholder="e.g. 3BHK, 1200 sqft, north facing, Vastu compliant"
+              className="mt-2 w-full border border-line rounded-lg p-3 text-sm resize-none focus:outline-none focus:border-gold"
             />
-
-            <div className="mt-3">
-              <div className="text-xs text-slate-500 mb-2">Try examples:</div>
-              <div className="flex flex-wrap gap-2">
-                {EXAMPLES.map((ex, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPrompt(ex)}
-                    className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-700/60 text-slate-300 border border-white/5 transition"
-                  >
-                    {ex.split(",")[0]}
-                  </button>
-                ))}
-              </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {EXAMPLES.map((ex) => (
+                <button key={ex} onClick={() => setPrompt(ex)} className="text-xs px-2.5 py-1.5 rounded-md bg-card border border-line hover:border-gold">
+                  {ex.split(",")[0]}
+                </button>
+              ))}
             </div>
-
-            <button
-              onClick={onGenerate}
-              disabled={loading || !prompt.trim()}
-              className="mt-4 w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-slate-900 transition shadow-lg shadow-amber-500/20"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Generate Design
-                </>
-              )}
+            <button onClick={onGenerate} disabled={loading || !prompt.trim()} className="btn-dark w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Generating…</> : <><Sparkles className="w-4 h-4" />Generate design</>}
             </button>
-
-            {loading && (
-              <div className="mt-3 text-xs text-slate-400 space-y-1">
-                <Stage n={1} label="Parsing prompt with LLM" />
-                <Stage n={2} label="Rendering 2D plan with SDXL" />
-                <Stage n={3} label="Reconstructing 3D with TripoSR" />
-              </div>
-            )}
-
+            {loading && <p className="mt-3 text-xs text-ink/60">Parsing your prompt, rendering the 2D plan and building the 3D model. This can take a minute.</p>}
             {error && (
-              <div className="mt-3 flex items-start gap-2 bg-rose-500/10 border border-rose-500/30 rounded-lg p-3 text-xs text-rose-200">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-semibold mb-1">Backend not reachable</div>
-                  <div className="opacity-80">{error}</div>
-                  <div className="opacity-80 mt-1">
-                    Start backend: <code className="bg-slate-900 px-1 rounded">cd backend && uvicorn app.main:app --reload</code>
-                  </div>
+              <div className="mt-3 flex gap-2 bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-800">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <div className="font-semibold">Could not reach the backend</div>
+                  <div className="mt-0.5 opacity-80 break-words">{error}</div>
                 </div>
               </div>
             )}
-
-            {result && (
-              <div className="mt-3 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
-                ✓ Generated in {result.processing_time_sec}s · {result.message}
+            {result && <p className="mt-3 text-xs text-emerald-700">Generated in {result.processing_time_sec}s. {result.message}</p>}
+            {result && !result.model_3d_url && result.model_3d_error && (
+              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 break-words">
+                <div className="font-semibold">3D model failed</div>
+                {result.model_3d_error}
               </div>
             )}
           </div>
 
           <SpecPanel spec={result?.spec} />
-        </div>
+        </aside>
 
-        {/* Right: Output viewer */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTab("2d")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                tab === "2d"
-                  ? "bg-amber-500 text-slate-900"
-                  : "bg-white/5 text-slate-300 hover:bg-white/10"
-              }`}
-            >
-              2D Plan
-            </button>
-            <button
-              onClick={() => setTab("3d")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                tab === "3d"
-                  ? "bg-amber-500 text-slate-900"
-                  : "bg-white/5 text-slate-300 hover:bg-white/10"
-              }`}
-            >
-              3D Model
-            </button>
-
+        {/* Right: viewer fills all remaining space, never resizes */}
+        <section className="flex-1 min-w-0 min-h-[420px] lg:min-h-0 flex flex-col bg-card">
+          <div className="shrink-0 h-12 flex items-center gap-6 px-5 border-b border-line bg-white">
+            {([["2d", "2D floor plan", Square], ["3d", "3D model", Box]] as const).map(([k, label, I]) => (
+              <button key={k} onClick={() => setTab(k)} className={`h-full flex items-center gap-2 text-sm border-b-2 ${tab === k ? "border-gold font-medium" : "border-transparent text-ink/60 hover:text-ink"}`}>
+                <I className="w-4 h-4" />{label}
+              </button>
+            ))}
             {result?.image_2d_url && tab === "2d" && (
-              <a
-                href={mediaUrl(result.image_2d_url)}
-                download
-                className="ml-auto flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300"
-              >
-                <Download className="w-3.5 h-3.5" /> Download
-              </a>
+              <a href={mediaUrl(result.image_2d_url)} download className="ml-auto flex items-center gap-1.5 text-sm text-ink/70 hover:text-ink"><Download className="w-4 h-4" />Download</a>
             )}
           </div>
-
-          <div className="h-[640px]">
+          <div className="flex-1 min-h-0 relative">
             {tab === "2d" ? (
-              <div className="w-full h-full bg-slate-900 rounded-2xl border border-white/10 overflow-hidden flex items-center justify-center relative">
-                {result?.image_2d_url ? (
-                  <img
-                    src={mediaUrl(result.image_2d_url)}
-                    alt="2D Floor Plan"
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <EmptyState
-                    title="No 2D plan yet"
-                    subtitle="Enter a prompt and click Generate to see your floor plan."
-                  />
-                )}
-              </div>
+              result?.image_2d_url ? (
+                <img src={mediaUrl(result.image_2d_url)} alt="2D floor plan" className="absolute inset-0 w-full h-full object-contain p-4" />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 text-ink/50">
+                  {loading ? <Loader2 className="w-7 h-7 animate-spin text-gold" /> : (<><div className="font-medium text-ink/80">No design yet</div><p className="text-sm mt-1">Enter your requirements and click Generate design.</p></>)}
+                </div>
+              )
             ) : (
-              <Viewer3D spec={result?.spec ?? null} imageUrl={result?.image_2d_url} />
+              <div className="absolute inset-0"><Viewer3D spec={result?.spec ?? null} imageUrl={result?.image_2d_url} modelUrl={result?.model_3d_url ? mediaUrl(result.model_3d_url) : undefined} /></div>
             )}
           </div>
-
-          {result?.model_3d_url && (
-            <div className="text-xs text-slate-500 text-center">
-              3D mesh: <code className="text-slate-400">{result.model_3d_url}</code>
-            </div>
-          )}
-        </div>
+        </section>
       </div>
-    </main>
-  );
-}
-
-function Stage({ n, label }: { n: number; label: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-[10px] text-amber-300">
-        {n}
-      </div>
-      <div className="flex-1 flex items-center gap-2">
-        <Loader2 className="w-3 h-3 animate-spin text-amber-400" />
-        {label}...
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div className="text-center px-6">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
-        <Sparkles className="w-7 h-7 text-amber-400" />
-      </div>
-      <div className="text-lg font-semibold text-white mb-1">{title}</div>
-      <div className="text-sm text-slate-400">{subtitle}</div>
     </div>
   );
 }

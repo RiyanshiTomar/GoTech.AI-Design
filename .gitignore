@@ -94,3 +94,6 @@ coverage/
 *.swp
 .cache/
 .parcel-cache/
+
+# Keep frontend site images (cropped from design mockups)
+!frontend/gotec-web/public/img/*.jpg

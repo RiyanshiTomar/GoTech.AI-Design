@@ -21,5 +21,9 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 MODELS = {
     "llm": "mistralai/Mistral-7B-Instruct-v0.3",
     "text_to_2d": "stabilityai/stable-diffusion-xl-base-1.0",
-    "image_to_3d": "stabilityai/TripoSR",
+    # HF Spaces (image -> GLB), tried in order. Runs on HF_TOKEN only.
+    "image_to_3d_spaces": [
+        "trellis-community/TRELLIS",
+        "JeffreyXiang/TRELLIS",
+    ],
 }

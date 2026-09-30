@@ -33,5 +33,6 @@ class GenerateResponse(BaseModel):
     spec: Optional[DesignSpec] = None
     image_2d_url: Optional[str] = None
     model_3d_url: Optional[str] = None
+    model_3d_error: Optional[str] = None
     processing_time_sec: float
     message: str = ""

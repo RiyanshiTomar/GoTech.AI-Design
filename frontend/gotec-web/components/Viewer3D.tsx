@@ -1,8 +1,8 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, Html } from "@react-three/drei";
-import { useMemo, useRef, useState } from "react";
+import { OrbitControls, Environment, ContactShadows, useGLTF, Center, Bounds } from "@react-three/drei";
+import { Component, Suspense, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 
 interface Room {
@@ -13,6 +13,7 @@ interface Room {
 interface Viewer3DProps {
   spec?: { bhk: number; total_area_sqft: number; rooms: Room[] } | null;
   imageUrl?: string;
+  modelUrl?: string;
 }
 
 /** Build a simple house layout from spec rooms - rooms arranged in a grid */
@@ -64,7 +65,7 @@ function HouseModel({ spec }: { spec: Viewer3DProps["spec"] }) {
       {/* Ground / plot */}
       <mesh receiveShadow position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial color="#1e293b" />
+        <meshStandardMaterial color="#f3f0ea" />
       </mesh>
 
       {/* Plot border */}
@@ -99,14 +100,8 @@ function HouseModel({ spec }: { spec: Viewer3DProps["spec"] }) {
           {/* Roof outline */}
           <mesh position={[0, 1.81, 0]}>
             <boxGeometry args={[room.w + 0.05, 0.05, room.d + 0.05]} />
-            <meshStandardMaterial color="#0f172a" />
+            <meshStandardMaterial color="#cfc8bb" />
           </mesh>
-          {/* Label */}
-          <Html position={[0, 2.2, 0]} center distanceFactor={10}>
-            <div className="px-2 py-1 rounded bg-slate-900/90 text-white text-xs font-medium whitespace-nowrap pointer-events-none border border-white/20">
-              {room.type}
-            </div>
-          </Html>
         </group>
       ))}
 
@@ -123,14 +118,32 @@ function HouseModel({ spec }: { spec: Viewer3DProps["spec"] }) {
   );
 }
 
-export default function Viewer3D({ spec, imageUrl }: Viewer3DProps) {
+function GlbModel({ url }: { url: string }) {
+  const { scene } = useGLTF(url);
   return (
-    <div className="relative w-full h-full bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl overflow-hidden">
+    <Bounds fit clip observe margin={1.3}>
+      <Center>
+        <primitive object={scene} />
+      </Center>
+    </Bounds>
+  );
+}
+
+class Boundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? this.props.fallback : this.props.children; }
+}
+
+export default function Viewer3D({ spec, imageUrl, modelUrl }: Viewer3DProps) {
+  return (
+    <div className="relative w-full h-full bg-white overflow-hidden">
       <Canvas
         shadows
         camera={{ position: [10, 10, 12], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
       >
+        <color attach="background" args={["#ffffff"]} />
         <ambientLight intensity={0.6} />
         <directionalLight
           position={[10, 15, 8]}
@@ -140,7 +153,15 @@ export default function Viewer3D({ spec, imageUrl }: Viewer3DProps) {
         />
         <Environment preset="sunset" />
 
-        <HouseModel spec={spec ?? null} />
+        {modelUrl ? (
+          <Boundary fallback={<HouseModel spec={spec ?? null} />}>
+            <Suspense fallback={null}>
+              <GlbModel url={modelUrl} />
+            </Suspense>
+          </Boundary>
+        ) : (
+          <HouseModel spec={spec ?? null} />
+        )}
 
         <ContactShadows
           position={[0, 0, 0]}
@@ -154,26 +175,30 @@ export default function Viewer3D({ spec, imageUrl }: Viewer3DProps) {
           enablePan
           enableZoom
           enableRotate
-          minDistance={5}
-          maxDistance={30}
+          minDistance={1}
+          maxDistance={60}
           maxPolarAngle={Math.PI / 2.1}
           autoRotate
           autoRotateSpeed={0.4}
         />
 
         {/* Ground grid */}
-        <gridHelper args={[20, 20, "#334155", "#1e293b"]} position={[0, 0, 0]} />
+        <gridHelper args={[20, 20, "#d9d3c7", "#ece7dd"]} position={[0, 0, 0]} />
       </Canvas>
 
       {/* Overlay controls hint */}
-      <div className="absolute bottom-4 left-4 px-3 py-2 rounded-lg bg-slate-900/80 backdrop-blur text-xs text-slate-300 border border-white/10">
+      <div className="absolute bottom-4 left-4 px-3 py-2 rounded-lg bg-white/90 backdrop-blur text-xs text-ink/70 border border-line">
         🖱️ Drag to rotate · Scroll to zoom · Right-click to pan
       </div>
-      {imageUrl && (
-        <div className="absolute top-4 right-4 px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-400/30 text-xs text-emerald-200 backdrop-blur">
-          ✓ 3D reconstructed from 2D plan
+      {modelUrl ? (
+        <div className="absolute top-4 right-4 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 backdrop-blur">
+          ✓ 3D model generated from your plan
         </div>
-      )}
+      ) : imageUrl ? (
+        <div className="absolute top-4 right-4 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 backdrop-blur">
+          Showing layout from spec (AI 3D model unavailable)
+        </div>
+      ) : null}
     </div>
   );
 }
