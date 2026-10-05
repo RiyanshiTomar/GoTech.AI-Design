@@ -4,7 +4,7 @@
 
 This repository uses environment variables for sensitive data:
 
-- `HF_TOKEN` (HuggingFace API token) — set in `backend/.env`
+- LLM API keys (e.g. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) — set in `architect-agent/.env`
 - Any future production credentials
 
 The `.gitignore` excludes `.env` files, but **always double-check** before pushing:

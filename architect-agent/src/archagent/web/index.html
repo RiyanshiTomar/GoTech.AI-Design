@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture Agent</title>
+<link rel="stylesheet" href="/static/css/app.css">
+<script type="importmap">
+{ "imports": { "three": "/static/vendor/three/three.module.js", "three/addons/": "/static/vendor/three/addons/" } }
+</script>
+</head>
+<body>
+<div class="app">
+  <aside class="chat" aria-label="Design chat">
+    <header class="chat-head">
+      <div class="brand">Architecture Agent</div>
+      <div class="head-actions">
+        <span id="status-chip" class="chip chip-idle">No design</span>
+        <button id="reset-btn" class="btn btn-ghost" title="Start a new design">New</button>
+      </div>
+    </header>
+    <div id="messages" class="messages" role="log" aria-live="polite"></div>
+    <div class="examples" id="examples"></div>
+    <form id="chat-form" class="composer" autocomplete="off">
+      <textarea id="chat-input" rows="2" placeholder="Describe the building, or ask for a change..." maxlength="4000"></textarea>
+      <button id="send-btn" class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </aside>
+
+  <main class="preview">
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="plan" role="tab">2D Plan</button>
+      <button class="tab" data-tab="model3d" role="tab">3D Model</button>
+      <button class="tab" data-tab="debug" role="tab">Model / Debug</button>
+      <span class="spacer"></span>
+      <span id="stale-note" class="stale" hidden>Showing last valid version</span>
+    </nav>
+
+    <section id="tab-plan" class="pane active">
+      <div class="toolbar">
+        <div id="floor-tabs" class="seg"></div>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" id="plan-zoom-out" title="Zoom out">-</button>
+        <button class="btn btn-ghost" id="plan-zoom-in" title="Zoom in">+</button>
+        <button class="btn btn-ghost" id="plan-fit">Fit</button>
+        <a class="btn btn-ghost" id="plan-download" download>SVG</a>
+      </div>
+      <div id="plan-canvas" class="canvas plan-canvas"></div>
+      <div id="plan-info" class="infobar">Click a room for details.</div>
+    </section>
+
+    <section id="tab-model3d" class="pane">
+      <div class="toolbar">
+        <div id="floor-vis" class="seg"></div>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" id="view-reset">Reset camera</button>
+        <a class="btn btn-ghost" id="glb-download" download>GLB</a>
+        <a class="btn btn-ghost" id="ifc-download" download>IFC</a>
+      </div>
+      <div id="viewer" class="canvas viewer"></div>
+      <div class="infobar">Drag to rotate - right-drag to pan - scroll to zoom</div>
+    </section>
+
+    <section id="tab-debug" class="pane">
+      <div class="toolbar">
+        <div id="debug-tabs" class="seg">
+          <button class="seg-btn active" data-sub="validation">Validation</button>
+          <button class="seg-btn" data-sub="model">model.json</button>
+          <button class="seg-btn" data-sub="design">design.py</button>
+        </div>
+      </div>
+      <div id="debug-body" class="debug-body"></div>
+    </section>
+  </main>
+</div>
+<script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
