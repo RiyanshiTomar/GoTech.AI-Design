@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archagent"
+version = "0.1.0"
+description = "AI Architecture Agent (PoC) built on Aider: prompt -> validated architecture model -> IFC, 2D SVG plan, 3D GLB"
+requires-python = ">=3.10"
+dependencies = [
+  "shapely>=2.0",
+  "numpy",
+  "ifcopenshell>=0.8",
+  "fastapi",
+  "uvicorn",
+  "python-dotenv",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "httpx", "trimesh"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+archagent = ["knowledge/architecture_rules/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]

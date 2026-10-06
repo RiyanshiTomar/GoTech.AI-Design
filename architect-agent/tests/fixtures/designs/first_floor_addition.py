@@ -1,0 +1,12 @@
+# --- snippet appended by the "add a first floor with two bedrooms" scenario ---
+ground.add_stair(x=1.2, y=0.8, width=4.0, depth=1.0, direction="east", shape="straight")
+first = building.add_floor("First Floor", height=3.0)
+first.add_room("Landing", 0.5, 0.5, 6, 5, kind="corridor")
+first.add_room("Bedroom 2", 6.5, 0.5, 5, 5)
+first.add_room("Bedroom 3", 0.5, 5.5, 4, 3)
+first.connect("Landing", "Bedroom 2")
+first.connect("Landing", "Bedroom 3")
+first.add_window("Bedroom 2", "east", 1.5, width=1.5)
+first.add_window("Bedroom 2", "south", 1.5, width=1.5)
+first.add_window("Bedroom 3", "west", 0.9, width=1.2)
+first.add_window("Landing", "west", 1.5, width=1.5)
